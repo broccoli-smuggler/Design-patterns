@@ -1,0 +1,49 @@
+@startuml
+interface Observer
+
+class EmployeeView {
+  + update()
+  + onName(string name) 
+  + onTitle(string title)
+  + onId(int id)
+  + onSalary(int amount)
+  -EmployeeController controller
+}
+
+EmployeeView <|-- Observer
+EmployeeView --> EmployeeController
+
+class EmployeeModel {
+  - ArrayList<Observer> observers
+  - string name
+  - int id
+  - string title
+  - int salary
+  + setName(string name) 
+  + setTitle(string title)
+  + setId(int id)
+  + setSalary(int amount)
+  + getName(string name) 
+  + getTitle(string title)
+  + getId(int id)
+  + getSalary(int amount)
+  - updateObservers()
+}
+
+EmployeeController --> EmployeeModel
+
+class EmployeeController {
+  -EmployeeModel model
+
+  + setName(string name) 
+  + setTitle(string title)
+  + setId(int id)
+  + setSalary(int amount)
+  + getName(string name) 
+  + getTitle(string title)
+  + getId(int id)
+  + getSalary(int amount)
+}
+
+EmployeeModel ..> Observer
+@enduml

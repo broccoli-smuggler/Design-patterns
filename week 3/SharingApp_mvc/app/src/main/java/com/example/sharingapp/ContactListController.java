@@ -4,10 +4,10 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-public class ContactControllerList {
+public class ContactListController {
     private ContactList contact_list;
 
-    ContactControllerList(ContactList list) {
+    ContactListController(ContactList list) {
         this.contact_list = list;
     }
 
@@ -53,10 +53,16 @@ public class ContactControllerList {
         contact_list.loadContacts(context);
     }
 
-    public void hasContact()
+    public boolean hasContact(Contact contact) {
+        return contact_list.hasContact(contact);
+    }
 
-    public Contact getUserByUsername(String username) {
-        return contact_list.getUserByUsername(username);
+    public Contact getContactByUsername(String username) {
+        return contact_list.getContactByUsername(username);
+    }
+
+    public boolean isUsernameAvailable(String username) {
+        return getContactByUsername(username) == null;
     }
 
     public ArrayList<String> getAllUsernames(){

@@ -12,9 +12,10 @@ import android.widget.EditText;
  * contact's id.
  * Note: You will not be able contacts which are "active" borrowers
  */
-public class EditContactActivity extends AppCompatActivity {
+public class EditContactActivity extends AppCompatActivity implements Observer {
 
     private ContactList contact_list = new ContactList();
+    private ContactListController contact_list_controller = new ContactListController(contact_list);
     private Contact contact;
     private EditText email;
     private EditText username;
@@ -26,12 +27,12 @@ public class EditContactActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_contact);
 
         context = getApplicationContext();
-        contact_list.loadContacts(context);
+        contact_list_controller.loadContacts(context);
 
         Intent intent = getIntent();
         int pos = intent.getIntExtra("position", 0);
 
-        contact = contact_list.getContact(pos);
+        contact = contact_list_controller.getContact(pos);
 
         username = (EditText) findViewById(R.id.username);
         email = (EditText) findViewById(R.id.email);
@@ -41,7 +42,6 @@ public class EditContactActivity extends AppCompatActivity {
     }
 
     public void saveContact(View view) {
-
         String email_str = email.getText().toString();
 
         if (email_str.equals("")) {
@@ -58,7 +58,7 @@ public class EditContactActivity extends AppCompatActivity {
 
         // Check that username is unique AND username is changed (Note: if username was not changed
         // then this should be fine, because it was already unique.)
-        if (!contact_list.isUsernameAvailable(username_str) && !(contact.getUsername().equals(username_str))) {
+        if (!contact_list_controller.isUsernameAvailable(username_str) && !(contact.getUsername().equals(username_str))) {
             username.setError("Username already taken!");
             return;
         }
@@ -66,11 +66,7 @@ public class EditContactActivity extends AppCompatActivity {
         String id = contact.getId(); // Reuse the contact id
         Contact updated_contact = new Contact(username_str, email_str, id);
 
-        // Edit contact
-        EditContactCommand edit_contact_command = new EditContactCommand(contact_list, contact, updated_contact, context);
-        edit_contact_command.execute();
-
-        boolean success = edit_contact_command.isExecuted();
+        boolean success = contact_list_controller.editContact(contact, updated_contact, context);
         if (!success){
             return;
         }
@@ -80,17 +76,19 @@ public class EditContactActivity extends AppCompatActivity {
     }
 
     public void deleteContact(View view) {
-
-        // Delete contact
-        DeleteContactCommand delete_contact_command = new DeleteContactCommand(contact_list, contact, context);
-        delete_contact_command.execute();
-
-        boolean success = delete_contact_command.isExecuted();
+        boolean success = contact_list_controller.deleteContact(contact, context);
         if (!success){
             return;
         }
 
         // End EditContactActivity
         finish();
+    }
+
+    @Override
+    public void update() {
+        ContactController contact_controller = new ContactController(contact);
+        username.setText(contact_controller.getUsername());
+        email.setText(contact_controller.getEmail());
     }
 }
